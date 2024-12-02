@@ -14,5 +14,7 @@ Flashcard Digital adalah aplikasi desktop yang membantu siswa belajar dengan kar
 
 # Flowchart
 Flowchart 1:
-![Deskripsi Gambar](Flowchart 1.png)
+![Flowchart 1](Flowchart%201.png)
+
+Flowchart Revisi
 
