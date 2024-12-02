@@ -13,8 +13,8 @@ Flashcard Digital adalah aplikasi desktop yang membantu siswa belajar dengan kar
 3. Resume PDF
 
 # Flowchart
-Flowchart 1:
+Flowchart 1
 ![Flowchart 1](Flowchart%201.png)
 
-Flowchart Revisi
+
 
