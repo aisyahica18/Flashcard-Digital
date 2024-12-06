@@ -483,7 +483,7 @@ class FlashcardApp:
 
             # Menyesuaikan kolom untuk setiap 4 card, dan pindah ke baris baru
             col += 1
-            if col == 5:  # Setelah 4 kolom, pindah ke baris baru
+            if col == 4:  # Setelah 4 kolom, pindah ke baris baru
                 col = 0
                 row += 1
         
@@ -744,5 +744,5 @@ class FlashcardApp:
         
 if __name__ == "__main__":
     root = tk.Tk()
-    app = FlashcardApp(root) 
+    app = FlashcardApp(root)
     root.mainloop()
