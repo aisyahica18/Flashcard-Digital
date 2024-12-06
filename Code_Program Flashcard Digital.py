@@ -76,6 +76,7 @@ class FlashcardApp:
             canvas.create_image(0, 0, image=self.bg_image, anchor="nw")
         except Exception as e:
             print(f"Error loading image: {e}")
+            
 
         email_label = Label(self.root, text="Email", font=("Gliker", 14), bg="#eae4d2", fg="#17726d")
         canvas.create_window(640, 297, window=email_label)
@@ -457,18 +458,35 @@ class FlashcardApp:
         frame = tk.Frame(self.root, bg="#ffffff")
         frame.pack(pady=50)
         canvas.create_window(640, 360, window=frame)
+        # for i in range(5):  # Contoh 5 tombol
+        #     tk.Button(frame, text=f"Button {i+1}").pack(side="left", padx=5)
 
         colors = ["#FFCCCC", "#CCFFCC", "#CCCCFF", "#FFFFCC", "#CCFFFF", "#FFCCFF"]
 
-        # Membuat flashcard dengan deskripsi
+        # Variabel untuk melacak posisi grid
+        row = 0
+        col = 0  # Pastikan col didefinisikan di sini
+
+        # Menampilkan flashcards dengan 4 per baris
         for flashcard, description in self.flashcards.items():
-            bg_color = random.choice(colors) 
+            bg_color = random.choice(colors)
             card = tk.Frame(frame, bg=bg_color, bd=2, relief="solid", padx=10, pady=10)
-            card.pack(pady=10, fill="x", expand=True)
 
+            # Tempatkan card pada grid, di baris dan kolom yang sesuai
+            card.grid(row=row, column=col, padx=10, pady=10, sticky="ew")
+
+            # Menambahkan label flashcard
             tk.Label(card, text=flashcard, font=("Gliker", 18, "bold"), bg=bg_color).pack()
-            tk.Label(card, text=description, font=("Gliker", 14), bg=bg_color, wraplength=800).pack()
 
+            # Menambahkan label deskripsi dengan newline
+            tk.Label(card, text=description, font=("Gliker", 14), bg=bg_color, wraplength=200, justify="left").pack()
+
+            # Menyesuaikan kolom untuk setiap 4 card, dan pindah ke baris baru
+            col += 1
+            if col == 5:  # Setelah 4 kolom, pindah ke baris baru
+                col = 0
+                row += 1
+        
     def delete_flashcard_page(self):
         self.clear_screen()
 
@@ -726,5 +744,5 @@ class FlashcardApp:
         
 if __name__ == "__main__":
     root = tk.Tk()
-    app = FlashcardApp(root)
+    app = FlashcardApp(root) 
     root.mainloop()
