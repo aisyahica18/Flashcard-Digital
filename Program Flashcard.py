@@ -4,10 +4,12 @@ import random
 import json
 import sqlite3
 import os
+import pygame
+import sys
 
 # Modul untuk mengelola database
 class Database:
-    def _init_(self, db_name="flashcards.db"):
+    def __init__(self, db_name="flashcards.db"):
         self.conn = sqlite3.connect(db_name)
         self.create_table()
 
@@ -39,7 +41,7 @@ class Database:
 
 # Modul untuk logika quiz
 class Quiz:
-    def _init_(self, flashcards):
+    def __init__(self, flashcards):
         self.flashcards = flashcards
 
     def get_random_question(self):
@@ -52,7 +54,7 @@ class Quiz:
         return user_answer.lower() == correct_answer.lower()
 
 class FlashcardApp:
-    def _init_(self, root):
+    def __init__(self, root):
         self.root = root
         self.root.title("Flashcard Digital Berwarna")
         self.database = Database()
@@ -149,7 +151,7 @@ class FlashcardApp:
 
     def ask_question(self):
         self.current_keyword, partial_description = self.quiz.get_random_question()
-        self.question_label.config(text=f"Apa penjelasan dari '{self.current_keyword}'? {partial_description}")
+        self.question_label.config(text=f"Apa penjelasan dari '{self.current_keyword}'?")
         self.answer_entry.delete(0, tk.END)
         self.result_label.config(text="")
 
@@ -162,13 +164,10 @@ class FlashcardApp:
             self.result_label.config(text=f"Jawaban salah. Jawaban yang benar adalah: {correct_answer}", fg="red")
         self.ask_question()
 
-if _name_ == "_main_":
+if __name__ == "__main__":
     root = tk.Tk()
     app = FlashcardApp(root)
     root.mainloop()
-
-    import pygame
-import sys
 
 # Inisialisasi Pygame
 pygame.init()
@@ -221,42 +220,26 @@ while True:
             pygame.quit()
             sys.exit()
         
-        # Klik untuk memulai animasi flip
+        # Klik mouse untuk memulai flip
         if event.type == pygame.MOUSEBUTTONDOWN:
             if card_rect.collidepoint(event.pos) and not is_flipping:
                 is_flipping = True
-
-    # Animasi flipping
+    
     if is_flipping:
-        flip_angle += 5
+        flip_angle += 10
         if flip_angle >= 180:
             flip_angle = 0
             is_flipping = False
             show_front = not show_front
 
-    # Bersihkan layar
+    # Gambar latar belakang
     screen.fill(BACKGROUND_COLOR)
-
-    # Simulasi efek flipping
-    if is_flipping and flip_angle < 90:
-        scale = 1 - flip_angle / 90
-    elif is_flipping:
-        scale = (flip_angle - 90) / 90
-    else:
-        scale = 1
-
-    # Transformasi kartu
-    scaled_width = int(CARD_WIDTH * scale)
-    scaled_rect = card_rect.copy()
-    scaled_rect.width = scaled_width
-    scaled_rect.centerx = WIDTH // 2
-
-    pygame.draw.rect(screen, BACKGROUND_COLOR, card_rect)
-    pygame.draw.rect(screen, CARD_COLOR_FRONT if show_front else CARD_COLOR_BACK, scaled_rect)
-
-    # Gambar teks selama tidak sedang flip
-    if scale == 1:
-        draw_card()
-
+    
+    # Gambar kartu
+    draw_card()
+    
+    # Refresh layar
     pygame.display.flip()
-    clock.tick(60)
+    
+    # Batasi kecepatan frame
+    clock.tick(30)

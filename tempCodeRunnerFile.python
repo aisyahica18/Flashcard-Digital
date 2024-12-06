@@ -1,0 +1,240 @@
+import tkinter as tk
+from tkinter import messagebox, simpledialog, filedialog
+import json
+import os
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+
+# Global variables
+flashcards_data = {}
+flashcards_file = 'flashcards.json'
+
+
+# Load flashcards data from JSON file
+def load_flashcards():
+    global flashcards_data
+    if os.path.exists(flashcards_file):
+        with open(flashcards_file, 'r') as file:
+            flashcards_data = json.load(file)
+
+
+# Save flashcards data to JSON file
+def save_flashcards():
+    with open(flashcards_file, 'w') as file:
+        json.dump(flashcards_data, file, indent=4)
+
+
+# GUI Classes
+class MainApplication:
+    def __init__(self, master):
+        self.master = master
+        master.title("Digital Flashcards")
+
+        self.main_menu()
+
+    def main_menu(self):
+        self.clear_window()
+
+        tk.Label(self.master, text="Main Menu", font=("Arial", 24)).pack(pady=20)
+
+        tk.Button(self.master, text="Flashcards", command=self.flashcards_menu, width=20, height=2).pack(pady=10)
+        tk.Button(self.master, text="Quiz", command=self.quiz_menu, width=20, height=2).pack(pady=10)
+        tk.Button(self.master, text="Resume", command=self.resume_menu, width=20, height=2).pack(pady=10)
+
+    def clear_window(self):
+        for widget in self.master.winfo_children():
+            widget.destroy()
+
+    def flashcards_menu(self):
+        FlashcardsMenu(self.master, self.main_menu)
+
+    def quiz_menu(self):
+        QuizMenu(self.master, self.main_menu)
+
+    def resume_menu(self):
+        ResumeMenu(self.master, self.main_menu)
+
+
+class FlashcardsMenu:
+    def __init__(self, master, return_callback):
+        self.master = master
+        self.return_callback = return_callback
+        self.subtopic = None
+        self.load_flashcards_menu()
+
+    def load_flashcards_menu(self):
+        self.clear_window()
+
+        tk.Label(self.master, text="Flashcards Menu", font=("Arial", 24)).pack(pady=20)
+
+        self.subtopic_var = tk.StringVar()
+        tk.Label(self.master, text="Subtopic:").pack()
+        self.subtopic_entry = tk.Entry(self.master, textvariable=self.subtopic_var)
+        self.subtopic_entry.pack(pady=10)
+
+        tk.Button(self.master, text="Select Subtopic", command=self.select_subtopic).pack(pady=10)
+        tk.Button(self.master, text="Add Flashcard", command=self.add_flashcard).pack(pady=10)
+        tk.Button(self.master, text="Delete Flashcard", command=self.delete_flashcard).pack(pady=10)
+        tk.Button(self.master, text="Back to Main Menu", command=self.return_callback).pack(pady=20)
+
+    def clear_window(self):
+        for widget in self.master.winfo_children():
+            widget.destroy()
+
+    def select_subtopic(self):
+        self.subtopic = self.subtopic_var.get()
+        if self.subtopic not in flashcards_data:
+            flashcards_data[self.subtopic] = []
+
+    def add_flashcard(self):
+        if not self.subtopic:
+            messagebox.showwarning("Select Subtopic", "Please select a subtopic first.")
+            return
+
+        question = simpledialog.askstring("Add Flashcard", "Enter the question:")
+        answer = simpledialog.askstring("Add Flashcard", "Enter the answer:")
+        if question and answer:
+            flashcards_data[self.subtopic].append({'question': question, 'answer': answer})
+            save_flashcards()
+            messagebox.showinfo("Success", "Flashcard added successfully.")
+
+    def delete_flashcard(self):
+        if not self.subtopic:
+            messagebox.showwarning("Select Subtopic", "Please select a subtopic first.")
+            return
+
+        question = simpledialog.askstring("Delete Flashcard", "Enter the question to delete:")
+        if question:
+            flashcards_data[self.subtopic] = [fc for fc in flashcards_data[self.subtopic] if fc['question'] != question]
+            save_flashcards()
+            messagebox.showinfo("Success", "Flashcard deleted successfully.")
+
+
+class QuizMenu:
+    def __init__(self, master, return_callback):
+        self.master = master
+        self.return_callback = return_callback
+        self.subtopic = None
+        self.questions = []
+        self.current_question = 0
+        self.correct_answers = 0
+        self.load_quiz_menu()
+
+    def load_quiz_menu(self):
+        self.clear_window()
+
+        tk.Label(self.master, text="Quiz Menu", font=("Arial", 24)).pack(pady=20)
+
+        self.subtopic_var = tk.StringVar()
+        tk.Label(self.master, text="Subtopic:").pack()
+        self.subtopic_entry = tk.Entry(self.master, textvariable=self.subtopic_var)
+        self.subtopic_entry.pack(pady=10)
+
+        tk.Button(self.master, text="Start Quiz", command=self.start_quiz).pack(pady=10)
+        tk.Button(self.master, text="Back to Main Menu", command=self.return_callback).pack(pady=20)
+
+    def clear_window(self):
+        for widget in self.master.winfo_children():
+            widget.destroy()
+
+    def start_quiz(self):
+        self.subtopic = self.subtopic_var.get()
+        if self.subtopic not in flashcards_data or not flashcards_data[self.subtopic]:
+            messagebox.showwarning("No Flashcards", "No flashcards available for this subtopic.")
+            return
+
+        self.questions = flashcards_data[self.subtopic]
+        self.current_question = 0
+        self.correct_answers = 0
+        self.show_question()
+
+    def show_question(self):
+        self.clear_window()
+
+        question = self.questions[self.current_question]['question']
+        tk.Label(self.master, text=f"Question {self.current_question + 1}", font=("Arial", 18)).pack(pady=20)
+        tk.Label(self.master, text=question, font=("Arial", 14)).pack(pady=20)
+
+        self.answer_var = tk.StringVar()
+        tk.Entry(self.master, textvariable=self.answer_var).pack(pady=10)
+
+        tk.Button(self.master, text="Submit Answer", command=self.check_answer).pack(pady=10)
+
+    def check_answer(self):
+        answer = self.answer_var.get()
+        correct_answer = self.questions[self.current_question]['answer']
+
+        if answer.lower() == correct_answer.lower():
+            self.correct_answers += 1
+            messagebox.showinfo("Correct", "Correct answer!")
+        else:
+            messagebox.showinfo("Incorrect", f"Incorrect answer. The correct answer was: {correct_answer}")
+
+        self.current_question += 1
+        if self.current_question < len(self.questions):
+            self.show_question()
+        else:
+            self.show_results()
+
+    def show_results(self):
+        self.clear_window()
+
+        tk.Label(self.master, text="Quiz Completed", font=("Arial", 24)).pack(pady=20)
+        tk.Label(self.master, text=f"Your Score: {self.correct_answers}/{len(self.questions)}", font=("Arial", 18)).pack(pady=20)
+
+        tk.Button(self.master, text="Back to Main Menu", command=self.return_callback).pack(pady=20)
+
+
+class ResumeMenu:
+    def __init__(self, master, return_callback):
+        self.master = master
+        self.return_callback = return_callback
+        self.load_resume_menu()
+
+    def load_resume_menu(self):
+        self.clear_window()
+
+        tk.Label(self.master, text="Resume Menu", font=("Arial", 24)).pack(pady=20)
+
+        tk.Button(self.master, text="Export to PDF", command=self.export_to_pdf).pack(pady=10)
+        tk.Button(self.master, text="Back to Main Menu", command=self.return_callback).pack(pady=20)
+
+    def clear_window(self):
+        for widget in self.master.winfo_children():
+            widget.destroy()
+
+    def export_to_pdf(self):
+        file_path = filedialog.asksaveasfilename(defaultextension=".pdf", filetypes=[("PDF files", "*.pdf")])
+        if file_path:
+            self.create_pdf(file_path)
+
+    def create_pdf(self, file_path):
+        c = canvas.Canvas(file_path, pagesize=letter)
+        width, height = letter
+
+        c.setFont("Helvetica", 12)
+        y = height - 40
+
+        for subtopic, cards in flashcards_data.items():
+            c.drawString(40, y, f"Subtopic: {subtopic}")
+            y -= 20
+            for card in cards:
+                c.drawString(60, y, f"Q: {card['question']}")
+                y -= 20
+                c.drawString(60, y, f"A: {card['answer']}")
+                y -= 20
+                if y < 40:
+                    c.showPage()
+                    c.setFont("Helvetica", 12)
+                    y = height - 40
+
+        c.save()
+        messagebox.showinfo("Export Successful", "Flashcards have been exported to PDF successfully.")
+
+
+if __name__ == "__main__":
+    load_flashcards()
+
+    root = tk.Tk()
+    app = MainApplication(root)
+    root.mainloop()
