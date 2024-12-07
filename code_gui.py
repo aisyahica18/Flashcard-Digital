@@ -191,7 +191,7 @@ class FlashcardApp:
         frame = tk.Frame(self.root, bg="#ffffff")
         frame.place(relx=0.2, rely=0.68, anchor="center")
 
-        menu_options = ["Flashcard", "Quiz", "Resume", "Kembali"]
+        menu_options = ["Flashcard", "Quiz", "Resume", "Back"]
         actions = [self.flashcard_page, self.quiz_page, self.resume_page, self.start_page]
 
         for i, (option, action) in enumerate(zip(menu_options, actions), start=0):
@@ -319,11 +319,9 @@ class FlashcardApp:
         )
         canvas.create_window(98, 580, window=kembali_button)
 
-        Label(self.root, text="Flashcards", font=("Arial", 36, "bold"), bg="#ffffff", fg="#4682b4").pack(pady=50)
-
         frame = tk.Frame(self.root, bg="#ffffff")
         frame.pack(pady=50)
-        canvas.create_window(640, 360, window=frame)
+        canvas.create_window(725, 395, window=frame)
 
         colors = ["#FFCCCC", "#CCFFCC", "#CCCCFF", "#FFFFCC", "#CCFFFF", "#FFCCFF"]
 
@@ -465,7 +463,7 @@ class FlashcardApp:
 
             next_button = tk.Button(
                 self.root, text="Next", font=("Gliker", 15), bg="#17726d", fg="#eae4d2",
-                command=lambda: [self.check_answer(answer_entry.get(), keyword), next_button.config(state=tk.DISABLED)]
+                command=lambda: [self.check_answer(answer_entry.get(), keyword)]
             )
             canvas.create_window(1020, 600, window=next_button)
         else:
@@ -541,21 +539,95 @@ class FlashcardApp:
     def view_resume(self):
         self.clear_screen()
 
+        canvas = tk.Canvas(self.root, width=1280, height=720)
+        canvas.pack(fill="both", expand=True)
+        try:
+            image = Image.open("HalamanResume.jpg")
+            self.bg_image = ImageTk.PhotoImage(image.resize((1280, 720)))
+            canvas.create_image(0, 0, image=self.bg_image, anchor="nw")
+        except Exception as e:
+            print(f"Error loading image: {e}")
+            
+        view_button = tk.Button(
+            self.root, text="Show Resume", font=("Gliker", 13), bg="#eae4d2", fg="#17726d",
+            command=self.view_resume
+        )
+        canvas.create_window(96, 223, window=view_button)
+
+        download_button = tk.Button(
+            self.root, text="Download Resume", font=("Gliker", 13), bg="#eae4d2", fg="#17726d",
+            command=self.download_resume
+        )
+        canvas.create_window(96, 378, window=download_button)
+
+        kembali_button = tk.Button(
+            self.root, text="Back to Main Menu", font=("Gliker", 11), bg="#eae4d2", fg="#17726d",
+            command=self.menu_page
+        )
+        canvas.create_window(96, 530, window=kembali_button)
+
+        flashcard_frame = tk.Frame(canvas, width=800, height=400, bg="#ffffff")  
+        flashcard_frame.place(relx=0.55, rely=0.5, anchor="center")  
+
+        flashcard_canvas = tk.Canvas(flashcard_frame, bg="#ffffff", highlightthickness=0, width=800, height=400)
+        flashcard_canvas.pack(side="left", fill="both", expand=True)
+        
+        scrollbar = tk.Scrollbar(
+            flashcard_frame, orient="vertical", command=flashcard_canvas.yview, width=15
+        )
+        scrollbar.pack(side="right", fill="y")
+
+        flashcard_canvas.configure(yscrollcommand=scrollbar.set)
+        flashcard_inner_frame = tk.Frame(flashcard_canvas, bg="#ffffff", width=400)  
+        flashcard_canvas.create_window((0, 0), window=flashcard_inner_frame, anchor="nw")
+
         for keyword, explanation in self.flashcard_manager.flashcards.items():
-            Label(self.root, text=f"Kata Kunci: {keyword}", font=("Gliker", 10), bg="#f0f8ff").pack(pady=10)
-            Label(self.root, text=f"Penjelasan: {explanation}", font=("Gliker", 10), bg="#f0f8ff", wraplength=800).pack(pady=10)
+            keyword_label = tk.Label(
+                flashcard_inner_frame, text=f"Kata Kunci: {keyword}", font=("Gliker", 14), bg="#ffffff", fg="#17726d"
+            )
+            keyword_label.pack(anchor="w", pady=5, padx=15)
 
-        tk.Button(
-            self.root, text="Kembali", font=("Gliker", 18), bg="#17726d", fg="#eae4d2", command=self.resume_page
-        ).pack(pady=20, ipadx=20, ipady=5)
+            explanation_label = tk.Label(
+                flashcard_inner_frame, text=f"Penjelasan: {explanation}", font=("Gliker", 13), bg="#ffffff", wraplength=750
+            )
+            explanation_label.pack(anchor="w", pady=5, padx=15)
 
+        flashcard_inner_frame.update_idletasks()
+        flashcard_canvas.config(scrollregion=flashcard_canvas.bbox("all"))
+            
     def download_resume(self):
         self.clear_screen()
+        
+        canvas = tk.Canvas(self.root, width=1280, height=720)
+        canvas.pack(fill="both", expand=True)
+        try:
+            image = Image.open("HalamanResume.jpg")
+            self.bg_image = ImageTk.PhotoImage(image.resize((1280, 720)))
+            canvas.create_image(0, 0, image=self.bg_image, anchor="nw")
+        except Exception as e:
+            print(f"Error loading image: {e}")
+            
+        view_button = tk.Button(
+            self.root, text="Show Resume", font=("Gliker", 13), bg="#eae4d2", fg="#17726d",
+            command=self.view_resume
+        )
+        canvas.create_window(96, 223, window=view_button)
+
+        download_button = tk.Button(
+            self.root, text="Download Resume", font=("Gliker", 13), bg="#eae4d2", fg="#17726d",
+            command=self.download_resume
+        )
+        canvas.create_window(96, 378, window=download_button)
+
+        kembali_button = tk.Button(
+            self.root, text="Back to Main Menu", font=("Gliker", 11), bg="#eae4d2", fg="#17726d",
+            command=self.menu_page
+        )
+        canvas.create_window(96, 530, window=kembali_button)
 
         self.resume_manager.download_resume()
 
-        Label(self.root, text="Resume berhasil diunduh!", font=("Arial", 18), bg="#f0f8ff", fg="#4682b4").pack(pady=20)
-
-        tk.Button(
-            self.root, text="Kembali", font=("Arial", 18), bg="#d3d3d3", command=self.resume_page
-        ).pack(pady=20, ipadx=20, ipady=5)
+        downloadresume_label = tk.Label(
+            self.root, text="Resume downloaded successfully!", font=("Gliker", 30), bg="#ffffff", fg="#17726d"
+        )
+        canvas.create_window(715, 350, window=downloadresume_label)
