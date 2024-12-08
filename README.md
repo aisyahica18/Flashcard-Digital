@@ -11,9 +11,9 @@ Flashcard Digital adalah aplikasi desktop yang membantu siswa belajar dengan kar
 1. Flashcard
 
    Pada fitur ini dibagi menjadi beberapa fitur, yaitu:
-    - Add Flashcard     : merupakan fitur untuk kita menambahkan kata kunci dan materinya.
-    - Show Flashcard 	: merupakan fitur yang akan menampilkan Kumpulan kata kunci dan materi yang sebelumnya sudah kita tambahkan.
-    - Delete Flashcard	: merupakan fitur untuk menghapus kata kunci dan materi yang sebelumnya ditambahkan.
+    - Add Flashcard     : merupakan fitur untuk memungkinkan pengguna menambahkan kata kunci dan materinya.
+    - Show Flashcard 	: merupakan fitur yang akan menampilkan kumpulan kata kunci dan materi yang sudah pengguna tambahkan.
+    - Delete Flashcard	: merupakan fitur untuk menghapus kata kunci dan materi yang telah ditambahkan oleh pengguna.
       
 2. Quiz
    
@@ -21,9 +21,9 @@ Flashcard Digital adalah aplikasi desktop yang membantu siswa belajar dengan kar
    
 4. Resume
    
-   Pada fitur ini akan dibagi menjadi 2 fitur, yaitu:
-    - Show Resume       : fitur ini akan menampilkan resume dari materi yang kita tambahkan dan kita pelajari.
-    - Download Resume   : pada fitur ini resume materi dapat kita download dalam bentuk file pdf.
+   Pada fitur ini dibagi menjadi 2 fitur, yaitu:
+    - Show Resume       : fitur ini akan menampilkan resume dari materi yang pengguna tambahkan dan pelajari.
+    - Download Resume   : pada fitur ini resume materi dapat pengguna download dalam bentuk file pdf.
        
 # Libary
 Program Aplikasi Flashcard Digital, menggunakan beberapa library sebagai berikut:
