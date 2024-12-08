@@ -332,7 +332,7 @@ class FlashcardApp:
         self.flashcard_manager.add_flashcard(keyword, description)
         self.flashcard_page()
 
-    def show_flashcards_page(self):
+    def show_flashcards_page(self):  
         self.clear_screen()
 
         canvas = tk.Canvas(self.root, width=1280, height=720)
@@ -367,28 +367,40 @@ class FlashcardApp:
             command=self.menu_page
         )
         canvas.create_window(98, 580, window=kembali_button)
+        
+        flashcard_frame = tk.Frame(canvas, width=1000, height=650, bg="#ffffff")  
+        flashcard_frame.place(relx=0.58, rely=0.68, anchor="center")  
 
-        frame = tk.Frame(self.root, bg="#ffffff")
-        frame.pack(pady=50)
-        canvas.create_window(725, 395, window=frame)
+        flashcard_canvas = tk.Canvas(flashcard_frame, bg="#ffffff", highlightthickness=0, width=1000, height=650)
+        flashcard_canvas.pack(side="left", fill="both", expand=True)
+        
+        scrollbar = tk.Scrollbar(
+            flashcard_frame, orient="vertical", command=flashcard_canvas.yview, width=15
+        )
+        scrollbar.pack(side="right", fill="y")
+
+        flashcard_canvas.configure(yscrollcommand=scrollbar.set)
+        flashcard_inner_frame = tk.Frame(flashcard_canvas, bg="#ffffff", width=400)  
+        flashcard_canvas.create_window((0, 0), window=flashcard_inner_frame, anchor="nw")
 
         colors = ["#FFCCCC", "#CCFFCC", "#CCCCFF", "#FFFFCC", "#CCFFFF", "#FFCCFF"]
-
-        row = 0
-        col = 0
+        row, col = 0, 0  
 
         for flashcard, description in self.flashcard_manager.flashcards.items():
             bg_color = random.choice(colors)
-            card = tk.Frame(frame, bg=bg_color, bd=2, relief="solid", padx=10, pady=10)
+            card = tk.Frame(flashcard_inner_frame, bg=bg_color, bd=2, relief="solid", padx=10, pady=10)
             card.grid(row=row, column=col, padx=10, pady=10, sticky="ew")
 
-            Label(card, text=flashcard, font=("Gliker", 18, "bold"), bg=bg_color).pack()
-            Label(card, text=description, font=("Gliker", 14), bg=bg_color, wraplength=200, justify="left").pack()
+            tk.Label(card, text=flashcard, font=("Gliker", 16, "bold"), bg=bg_color).pack()
+            tk.Label(card, text=description, font=("Gliker", 12), bg=bg_color, wraplength=200, justify="left").pack()
 
             col += 1
-            if col == 4:
+            if col == 4:  
                 col = 0
                 row += 1
+
+        flashcard_inner_frame.update_idletasks()
+        flashcard_canvas.config(scrollregion=flashcard_canvas.bbox("all"))
 
     def delete_flashcard_page(self):
         self.clear_screen()
