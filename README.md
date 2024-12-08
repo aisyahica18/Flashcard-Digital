@@ -8,13 +8,20 @@
 Flashcard Digital adalah aplikasi desktop yang membantu siswa belajar dengan kartu kilat digital. Pengguna dapat memasukkan kata kunci dan penjelasan materi, yang ditampilkan sebagai flashcard berwarna-warni. Aplikasi ini juga menyediakan kuis singkat untuk review materi dengan jawaban langsung ditampilkan di layar, serta menyimpan flashcard.
 
 # Fitur - Fitur Aplikasi
-1. Flashcard (Tambah Flashcard, Hapus Flashcard, Simpan Flashcard)
+1. Flashcard (Add Flashcard Flashcard, Show Flashcard, Delete Flashcard)
 2. Quiz
-3. Resume PDF
+3. Resume PDF (Show Resume, Download Resume to PDF File)
 
 # Flowchart
 Flowchart 1
 ![Flowchart 1](Flowchart%201.png)
+
+# Flowchart Revisi
+![Flowchart Revisi](flowchart_revisi_final.jpg)
+
+# Sitemap
+![Sitemap](sitemap.png)
+
 
 
 
