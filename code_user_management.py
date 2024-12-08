@@ -1,14 +1,16 @@
 import json
 import os
-from tkinter import messagebox, Canvas, Button, Label, Entry
-from PIL import Image, ImageTk
+import random
 import smtplib
 from email.message import EmailMessage
+from tkinter import messagebox
 
 class UserManager:
-    def __init__(self):
-        self.users_file = "users.json"
+    def __init__(self, users_file="users.json"):
+        self.users_file = users_file
         self.users = self.load_users()
+        self.verification_code = None
+        self.verified_email = None
 
     def load_users(self):
         if os.path.exists(self.users_file):
@@ -20,53 +22,58 @@ class UserManager:
         with open(self.users_file, "w") as f:
             json.dump(self.users, f, indent=4)
 
-    def registerlogin_page(self):
-        # Implementation of register/login page
-        pass
+    def register_user(self, email, password, confirm_password):
+        try:
+            if not email or not password or not confirm_password:
+                raise ValueError("All fields must be filled.")
+            if password != confirm_password:
+                raise ValueError("Passwords do not match.")
+            if email in self.users:
+                raise ValueError("Email is already registered.")
+            self.users[email] = password
+            self.save_users()
+            messagebox.showinfo("Registration Success", "Registration successful! Please log in.")
+        except ValueError as e:
+            messagebox.showerror("Registration Failed", str(e))
 
     def authenticate_login(self, email, password):
         if email in self.users and self.users[email] == password:
-            messagebox.showinfo("Login Success!", "Login Success!")
-            # Call the main menu page
+            messagebox.showinfo("Login Success", "Login successful!")
+            return True
         else:
-            messagebox.showerror("Login Failed", "Incorrect email or password")
+            messagebox.showerror("Login Failed", "Incorrect email or password.")
+            return False
 
-    def register_page(self):
-        # Implementation of the register page
-        pass
+    def send_verification_email(self, email):
+        try:
+            if not email:
+                raise ValueError("Email cannot be empty.")
 
-    def register_user(self, email, password, confirm_password):
-        if password != confirm_password:
-            messagebox.showerror("Registration Failed", "Password don't match!")
-            return
+            sender_email = "flashcarddigital@gmail.com"
+            sender_password = "hzyngfsfaniaoatj"  
+            self.verification_code = str(random.randint(100000, 999999))
 
-        if email in self.users:
-            messagebox.showerror("Registration Failed", "Email already registered.")
-        else:
-            self.users[email] = password
-            self.save_users()
-            messagebox.showinfo("Registration Success", "Registration successful! Please login.")
-            # Call the login page
+            subject = "Reset Password Flashcard Digital App"
+            body = f"Your verification code is: {self.verification_code}"
 
-    def forgotpassword_page(self):
-        # Implementation of forgot password page
-        pass
+            message = EmailMessage()
+            message["From"] = sender_email
+            message["To"] = email
+            message["Subject"] = subject
+            message.set_content(body)
 
-    def send_verification_email(self):
-        # Implementation of sending verification email
-        pass
+            with smtplib.SMTP("smtp.gmail.com", 587) as server:
+                server.starttls()
+                server.login(sender_email, sender_password)
+                server.send_message(message)
 
-    def verify_code(self):
-        # Implementation of verifying code
-        pass
+            messagebox.showinfo("Email Sent", f"Verification code sent to {email}.")
+        except ValueError as e:
+            messagebox.showerror("Error", str(e))
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to send email: {e}")
 
-    def reset_password_page(self):
-        # Implementation of reset password page
-        pass
-
-    def reset_password(self, new_password, confirm_password):
-        if new_password != confirm_password:
-            messagebox.showerror("Error", "Passwords do not match")
-            return
-        messagebox.showinfo("Success", "Password has been reset")
-        # Call the login page
+    def verify_code(self, entered_code):
+        if entered_code == self.verification_code:
+            return True
+        return False 

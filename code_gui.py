@@ -13,12 +13,10 @@ class FlashcardApp:
         self.root.title("Flashcard Digital")
         self.root.state('zoomed')
         self.root.configure(bg="#f0f8ff")
-
         self.user_manager = UserManager()
         self.flashcard_manager = FlashcardManager()
         self.quiz_manager = QuizManager(self.flashcard_manager)
         self.resume_manager = ResumeManager(self.flashcard_manager)
-
         self.start_page()
 
     def clear_screen(self):
@@ -36,8 +34,7 @@ class FlashcardApp:
         except Exception as e:
             print(f"Error loading image: {e}")
 
-        start_button = Button(
-            self.root, text="Start", font=("Gliker", 24, "bold"),
+        start_button = Button( self.root, text="Start", font=("Gliker", 24, "bold"),
             bg="#eae4d2", fg="#17726d", command=self.registerlogin_page
         )
         canvas.create_window(600, 550, window=start_button)
@@ -145,10 +142,9 @@ class FlashcardApp:
 
     def forgotpassword_page(self):
         self.clear_screen()
-
+        
         canvas = Canvas(self.root, width=1280, height=720)
         canvas.pack(fill="both", expand=True)
-
         try:
             image = Image.open("HalamanForgotPassword.jpg")
             self.bg_image = ImageTk.PhotoImage(image.resize((1280, 720)))
@@ -161,17 +157,70 @@ class FlashcardApp:
         email_entry = Entry(self.root, font=("Gliker", 14), bg="#eae4d2", fg="#17726d", width=30)
         canvas.create_window(640, 362, window=email_entry)
 
-        send_code_button = Button(self.root, text="Send Verification Code", font=("Gliker", 12), bg="#eae4d2", fg="#17726d", command=self.user_manager.send_verification_email)
+        send_code_button = Button(
+            self.root, text="Send Verification Code", font=("Gliker", 12), bg="#eae4d2", fg="#17726d",
+            command=lambda: self.user_manager.send_verification_email(email_entry.get())
+        )
         canvas.create_window(640, 397, window=send_code_button)
+
         code_label = Label(self.root, text="Verification Code", font=("Gliker", 12), bg="#b5cfa1", fg="#17726d")
         canvas.create_window(640, 464, window=code_label)
 
         code_entry = Entry(self.root, font=("Gliker", 14), bg="#b5cfa1", fg="#17726d", width=30)
         canvas.create_window(640, 486, window=code_entry)
 
-        verify_button = Button(self.root, text="Verify Code", font=("Gliker", 12), bg="#b5cfa1", fg="#17726d", command=self.user_manager.verify_code)
+        verify_button = Button(self.root, text="Verify Code", font=("Gliker", 12), bg="#b5cfa1", fg="#17726d",
+                            command=lambda: self.verify_code_and_redirect(email_entry.get(), code_entry.get()))
         canvas.create_window(640, 520, window=verify_button)
+        
+        back_to_registerlogin = Label(self.root, text="← Kembali ke halaman login", font=("Gliker", 12), bg="#17726d", fg="#ffffff", cursor="hand2")
+        back_to_registerlogin.bind("<Button-1>", lambda e: self.registerlogin_page())
+        canvas.create_window(640, 598, window=back_to_registerlogin)
+      
+    def verify_code_and_redirect(self, email, entered_code):
+        if self.user_manager.verify_code(entered_code):
+            messagebox.showinfo("Verification Success", "Code verified! You can now reset your password.")
+            self.reset_password_page()
+        else:
+            messagebox.showerror("Verification Failed", "Invalid verification code.")
 
+    def reset_password_page(self):
+        self.clear_screen()
+
+        canvas = Canvas(self.root, width=1280, height=720)
+        canvas.pack(fill="both", expand=True)
+        try:
+            image = Image.open("HalamanResetPassword.jpg") 
+            self.bg_image = ImageTk.PhotoImage(image.resize((1280, 720)))  
+            canvas.create_image(0, 0, image=self.bg_image, anchor="nw")
+        except Exception as e:
+            print(f"Error loading image: {e}")
+
+        new_password_label = Label(self.root, text="New Password", font=("Gliker", 14), bg="#eae4d2", fg="#17726d")
+        canvas.create_window(640, 342, window=new_password_label)  
+        self.new_password_entry = Entry(self.root, font=("Gliker", 14), bg="#eae4d2", fg="#17726d", width=30, show="*")  
+        canvas.create_window(640, 377, window=self.new_password_entry)  
+
+        confirm_password_label = Label(self.root, text="Confirm Password", font=("Gliker", 14), bg="#b5cfa1", fg="#17726d")
+        canvas.create_window(640, 465, window=confirm_password_label)  
+        self.confirm_password_entry = Entry(self.root, font=("Gliker", 14), bg="#b5cfa1", fg="#17726d", width=30, show="*")  
+        canvas.create_window(640, 486, window=self.confirm_password_entry)  
+        
+        def reset_password():
+            new_password = self.new_password_entry.get() 
+            confirm_password = self.confirm_password_entry.get()  
+            if not new_password or not confirm_password:
+                messagebox.showerror("Error", "Password fields cannot be empty")
+                return
+            if new_password != confirm_password:
+                messagebox.showerror("Error", "Passwords do not match")
+                return
+            messagebox.showinfo("Success", "Password has been reset")
+            self.registerlogin_page()  
+            
+        reset_button = Button(self.root, text="Reset Password", font=("Gliker", 12), bg="#b5cfa1", fg="#17726d", command=reset_password)
+        canvas.create_window(640, 517, window=reset_button)
+        
         back_to_registerlogin = Label(self.root, text="← Kembali ke halaman login", font=("Gliker", 12), bg="#17726d", fg="#ffffff", cursor="hand2")
         back_to_registerlogin.bind("<Button-1>", lambda e: self.registerlogin_page())
         canvas.create_window(640, 598, window=back_to_registerlogin)
