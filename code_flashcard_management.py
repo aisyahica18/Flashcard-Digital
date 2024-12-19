@@ -1,5 +1,6 @@
 import json
 import os
+import random
 from tkinter import messagebox
 
 class FlashcardManager:
@@ -24,6 +25,11 @@ class FlashcardManager:
             messagebox.showinfo("Success", "Flashcard added successfully!")
         else:
             messagebox.showerror("Error", "All columns must be filled in")
+
+    def get_random_flashcards(self, count):
+        if count > len(self.flashcards): 
+            count = len(self.flashcards)
+        return random.sample(list(self.flashcards.items()), count)
 
     def delete_flashcard(self, keyword):
         if keyword in self.flashcards:

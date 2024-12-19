@@ -1,9 +1,20 @@
+import random
+
 class QuizManager:
     def __init__(self, flashcard_manager):
         self.flashcard_manager = flashcard_manager
         self.score = 0
         self.current_question = 0
         self.questions = list(self.flashcard_manager.flashcards.items())
+
+    def shuffle_questions(self):
+        random.shuffle(self.questions)
+
+    def set_question_limit(self, limit):
+        if limit <= len(self.questions):
+            self.questions = self.questions[:limit]
+        else:
+            print(f"Jumlah soal melebihi total tersedia. Menampilkan semua {len(self.questions)} soal.")
 
     def ask_question(self):
         if self.current_question < len(self.questions):

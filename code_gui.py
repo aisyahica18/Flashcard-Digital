@@ -476,40 +476,63 @@ class FlashcardApp:
             print(f"Error loading image: {e}")
 
         kembali_button = tk.Button(
-            self.root, text="Back to Main Menu", font=("Gliker", 11), bg="#eae4d2", fg="#17726d",
+            self.root, text="Back to Main Menu", font=("Gliker", 11), bg="#17726d", fg="#eae4d2",
             command=self.menu_page
         )
-        canvas.create_window(98, 580, window=kembali_button)
+        canvas.create_window(640, 610, window=kembali_button)
 
-        self.quiz_manager.score = 0
-        self.quiz_manager.current_question = 0
-        self.quiz_manager.questions = list(self.flashcard_manager.flashcards.items())
+        jumlah_label = tk.Label(
+            self.root, text="Number of Questions:", font=("Gliker", 18), bg="#17726d", fg="#eae4d2"
+        )
+        canvas.create_window(640, 300, window=jumlah_label)
 
-        if self.quiz_manager.questions:
-            self.ask_question()
-        else:
-            print("ERROR: Tidak ada soal untuk ditampilkan!")
+        jumlah_entry = tk.Entry(self.root, font=("Gliker", 18), fg="#17726d", bg="#eae4d2", width=5)
+        canvas.create_window(640, 350, window=jumlah_entry)
 
+        start_button = tk.Button(
+            self.root, text="Start Quiz", font=("Gliker", 18), bg="#17726d", fg="#eae4d2",
+            command=lambda: self.start_quiz(jumlah_entry.get())
+        )
+        canvas.create_window(640, 420, window=start_button)
+
+    def start_quiz(self, jumlah_soal):
+        try:
+            jumlah_soal = int(jumlah_soal)  # Validasi input angka
+            total_soal = len(self.flashcard_manager.flashcards)  # Total soal tersedia
+
+            if jumlah_soal <= 0:
+                tk.messagebox.showerror("Error", "Number of questions must be greater than 0!")
+                return
+
+            if total_soal == 0:
+                tk.messagebox.showerror("Error", "No questions available in the database!")
+                return
+
+            self.quiz_manager.questions = self.flashcard_manager.get_random_flashcards(jumlah_soal)
+            self.quiz_manager.score = 0
+            self.quiz_manager.current_question = 0
+
+            if self.quiz_manager.questions:  # Mulai kuis jika ada soal
+                self.ask_question()
+            else:
+                tk.messagebox.showerror("Error", "No questions to display!")
+        except ValueError:
+            tk.messagebox.showerror("Error", "Please enter a valid number.")
+    
     def ask_question(self):
         self.clear_screen()
 
-        canvas = tk.Canvas(self.root, width=1280, height=720)
-        canvas.pack(fill="both", expand=True)
-        try:
-            image = Image.open("HalamanSoalQuiz.jpg")
-            self.bg_image = ImageTk.PhotoImage(image.resize((1280, 720)))
-            canvas.create_image(0, 0, image=self.bg_image, anchor="nw")
-        except Exception as e:
-            print(f"Error loading image: {e}")
+        if self.quiz_manager.current_question < len(self.quiz_manager.questions):
+            canvas = tk.Canvas(self.root, width=1280, height=720)
+            canvas.pack(fill="both", expand=True)
+            try:
+                image = Image.open("HalamanSoalQuiz.jpg")
+                self.bg_image = ImageTk.PhotoImage(image.resize((1280, 720)))
+                canvas.create_image(0, 0, image=self.bg_image, anchor="nw")
+            except Exception as e:
+                print(f"Error loading image: {e}")
 
-        kembali_button = tk.Button(
-            self.root, text="Back to Main Menu", font=("Gliker", 15), bg="#17726d", fg="#eae4d2",
-            command=self.menu_page
-        )
-        canvas.create_window(320, 600, window=kembali_button)
-
-        question_data = self.quiz_manager.ask_question()
-        if question_data:
+            question_data = self.quiz_manager.questions[self.quiz_manager.current_question]
             keyword, explanation = question_data
 
             question_label = Label(self.root, text="Question:", font=("Gliker", 24), bg="#17726d", fg="#eae4d2")
